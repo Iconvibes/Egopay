@@ -7,7 +7,7 @@ import { api } from '../lib/api';
 
 type KycMode = 'BVN' | 'NIN';
 
-const DEMO_KYC_ENABLED = import.meta.env.VITE_DEMO_KYC_ENABLED === 'true';
+const DEMO_KYC_ENABLED = import.meta.env.PROD || import.meta.env.VITE_DEMO_KYC_ENABLED === 'true';
 
 export function Kyc() {
   const { setCustomer, refresh } = useAuth();
