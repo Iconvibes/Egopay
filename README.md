@@ -493,3 +493,55 @@ The PWA pieces (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`,
 - `.env` (with real credentials) is gitignored. Only `.env.example` with placeholders is committed.
 - Migrations are committed under `prisma/migrations/`.
 - The Postman collection documents the complete evaluator journey with synthetic test data.
+
+---
+
+## 15. Deploying to Vercel + Supabase
+
+The whole app (frontend + API) runs on Vercel with Supabase as the Postgres host — one URL to share, no server to manage.
+
+### 15.1 Supabase (database)
+
+1. Create a project at <https://supabase.com> (free tier is fine).
+2. Copy the **connection pooler** string: Project Settings → Database → Connection string → **Prisma** tab. It looks like:
+   ```
+   postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true
+   ```
+   Use the pooler (port `6543`) — serverless functions open many short-lived connections and the pooler prevents connection exhaustion.
+3. Apply the migrations from your machine once (against the Supabase URL):
+   ```bash
+   DATABASE_URL="<supabase-pooler-url>" npx prisma migrate deploy
+   ```
+
+### 15.2 Vercel (frontend + API)
+
+1. Push this repo to GitHub, then import it at <https://vercel.com/new>. Vercel reads `vercel.json` automatically:
+   - `frontend/` builds to static files (the SPA, served at the domain root).
+   - `api/index.ts` becomes a serverless function; all `/api/*` requests are rewritten to it.
+2. Set these **Environment Variables** (Production + Preview) in Vercel → Project → Settings → Environment Variables:
+
+   | Variable | Value |
+   |---|---|
+   | `DATABASE_URL` | Supabase pooler URL from §15.1 |
+   | `JWT_SECRET` | long random string (`openssl rand -hex 32`) |
+   | `NIBSS_API_KEY` / `NIBSS_API_SECRET` | your fintech credentials from `npm run onboard` |
+   | `NIBSS_BASE_URL` | `https://nibssbyphoenix.onrender.com` (default) |
+   | `CRON_SECRET` | long random string — enables + guards `/api/cron/reconcile` |
+   | `DEV_ADMIN_KEY` | long random string — enables the seed-identity endpoint (see §15.3) |
+   | `VITE_ADMIN_KEY` | same value as `DEV_ADMIN_KEY` — shows the "test identity" helper on the KYC screen |
+   | `CORS_ORIGIN` | `*` (frontend and API share one origin on Vercel) |
+
+   `@prisma/client` is generated automatically on install via the `postinstall` script.
+3. Deploy. The **balance-reconciliation cron** (`vercel.json` → `crons`) then runs daily on Vercel Cron, calling `/api/cron/reconcile` with `CRON_SECRET` to detect incoming payments. (Hobby plan allows daily crons only; users also trigger reconciliation implicitly by opening the app — every balance fetch reconciles the ledger.)
+
+> **Hobby-plan note:** serverless functions on the free plan have a 60s execution cap (10s for the first cold start response). `NIBSS_TIMEOUT_MS` default (20s) fits comfortably. Vercel Fluid Compute, now the default, keeps a warm instance between invocations.
+
+### 15.3 How strangers create accounts on your public URL
+
+The NibssByPhoenix sandbox only accepts identities that were first **inserted** into its identity store (like a real registry). For a public demo, the KYC screen ships a "Use a test identity" helper (visible when `VITE_ADMIN_KEY` is set) that inserts a synthetic identity into the sandbox, then pre-fills the BVN/NIN form. The visitor still completes the normal flow: register → verify identity → account created (₦15,000) → send/receive money. Because `DEV_ADMIN_KEY` guards the seeding endpoint server-side, only the helper's request (or your Postman calls) can insert identities — the endpoint is disabled entirely if the key is unset.
+
+### 15.4 What does NOT change on Vercel
+
+- Local dev keeps using `npm run dev` + the bundled Postgres (`npm run db:start`) — none of this affects the local flow.
+- The in-process background poller only runs via `npm start`/`tsx server.ts` (long-lived Node), never inside the serverless function, so there are no duplicated reconciliations.
+- All transfer-outcome alerts and balance refreshes are **awaited** before responses are returned, so nothing is lost to serverless request freezing.

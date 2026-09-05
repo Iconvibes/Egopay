@@ -90,7 +90,9 @@ export async function transfer(customerId: string, input: TransferInput) {
       if (err.statusCode) {
         // The upstream answered with an error: the transfer did not execute.
         await markFailed(tx.id, err.message);
-        void notifyTransferOutcome({
+        // Awaited so the alert survives serverless environments (Vercel),
+        // where the process is frozen the instant the response is sent.
+        await notifyTransferOutcome({
           customerId: tx.customerId,
           amount: Number(tx.amount),
           counterparty: tx.recipientName ?? input.to,
@@ -149,11 +151,13 @@ export async function transfer(customerId: string, input: TransferInput) {
   // Refresh the local balance cache from the ledger (best effort). This also
   // reconciles incoming payments, keeping the cache an accurate baseline for
   // future credit detection.
-  void syncAccountBalanceBestEffort(account.id, account.accountNumber);
+  // Awaited so cache refresh + alerts survive serverless environments
+  // (Vercel), where the process is frozen the instant the response is sent.
+  await syncAccountBalanceBestEffort(account.id, account.accountNumber);
 
   if (status === TransactionStatus.SUCCESS) {
     // Debit alert — mirrors the incoming-payment alerts.
-    void notifyTransferOutcome({
+    await notifyTransferOutcome({
       customerId: tx.customerId,
       amount: Number(tx.amount),
       counterparty: tx.recipientName ?? input.to,
@@ -162,7 +166,7 @@ export async function transfer(customerId: string, input: TransferInput) {
     return { message: 'Transfer successful', transaction: transactionDto(updated) };
   }
   if (status === TransactionStatus.FAILED) {
-    void notifyTransferOutcome({
+    await notifyTransferOutcome({
       customerId: tx.customerId,
       amount: Number(tx.amount),
       counterparty: tx.recipientName ?? input.to,

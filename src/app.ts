@@ -12,6 +12,7 @@ import { notFoundHandler } from './middleware/notFound.js';
 import { globalLimiter } from './middleware/rateLimit.js';
 import { accountRouter } from './modules/account/account.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { cronRouter } from './modules/cron/cron.routes.js';
 import { devRouter } from './modules/dev/dev.routes.js';
 import { notificationRouter } from './modules/notification/notification.routes.js';
 import { onboardingRouter } from './modules/onboarding/onboarding.routes.js';
@@ -74,6 +75,7 @@ export function createApp() {
   app.use('/api/transfers', transferRouter);
   app.use('/api/transactions', transactionRouter);
   app.use('/api/notifications', notificationRouter);
+  app.use('/api', cronRouter);
   app.use('/api', devRouter);
 
   if (HAS_FRONTEND) {

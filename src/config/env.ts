@@ -26,6 +26,12 @@ const envSchema = z.object({
   // Optional admin key guarding the dev identity-seeding endpoints.
   DEV_ADMIN_KEY: z.string().optional(),
 
+  // Secret guarding /api/cron/reconcile (serverless balance reconciliation).
+  // Vercel Cron sends it automatically as an Authorization: Bearer header.
+  // Leave empty to disable the endpoint (e.g. when running the in-process
+  // poller on a long-lived host).
+  CRON_SECRET: z.string().optional(),
+
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 
   RATE_LIMIT_WINDOW_MIN: z.coerce.number().int().positive().default(15),

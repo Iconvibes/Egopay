@@ -112,7 +112,9 @@ export async function getTransactionStatus(customerId: string, transactionId: st
       data: { status: mapped, completedAt: new Date() },
     });
     if (count === 1 && tx.direction === TransactionDirection.DEBIT) {
-      void notifyTransferOutcome({
+      // Awaited so the alert survives serverless environments (Vercel),
+      // where the process is frozen the instant the response is sent.
+      await notifyTransferOutcome({
         customerId,
         amount: Number(tx.amount),
         counterparty: tx.recipientName ?? tx.toAccount,
