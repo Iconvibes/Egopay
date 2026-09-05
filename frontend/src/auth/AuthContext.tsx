@@ -144,10 +144,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await api.login({ email, password });
       setToken(res.token);
       setCustomer(res.customer);
-      setAccount(null);
       setStatus('authenticated');
+      await refresh();
     },
-    [setCustomer, setAccount],
+    [refresh, setCustomer],
   );
 
   const register = useCallback(
@@ -157,8 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(loginRes.token);
       setCustomer(loginRes.customer);
       setStatus('authenticated');
+      await refresh();
     },
-    [setCustomer],
+    [refresh, setCustomer],
   );
 
   const logout = useCallback(() => {
