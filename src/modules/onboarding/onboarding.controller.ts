@@ -12,6 +12,16 @@ export async function verifyNin(req: Request, res: Response): Promise<void> {
   res.json(result);
 }
 
+export async function createDemoBvn(req: Request, res: Response): Promise<void> {
+  const result = await onboardingService.createDemoIdentity((req as AuthedRequest).customer.id, 'BVN');
+  res.status(201).json(result);
+}
+
+export async function createDemoNin(req: Request, res: Response): Promise<void> {
+  const result = await onboardingService.createDemoIdentity((req as AuthedRequest).customer.id, 'NIN');
+  res.status(201).json(result);
+}
+
 export async function status(req: Request, res: Response): Promise<void> {
   const customer = await onboardingService.getStatus((req as AuthedRequest).customer.id);
   res.json({ customer });

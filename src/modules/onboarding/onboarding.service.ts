@@ -1,8 +1,10 @@
 import { KycType } from '@prisma/client';
+import { env } from '../../config/env.js';
 import { Errors } from '../../lib/appError.js';
 import { customerDto } from '../../lib/dto.js';
 import { prisma } from '../../lib/prisma.js';
 import { NibssError, nibssClient } from '../../services/nibss/index.js';
+import { createDemoIdentityInput, type DemoIdentityMode } from './demoIdentity.js';
 
 async function loadCustomerOrThrow(customerId: string) {
   const customer = await prisma.customer.findUnique({ where: { id: customerId } });
@@ -120,6 +122,35 @@ export async function verifyNin(customerId: string, input: { nin: string; dob: s
 export async function getStatus(customerId: string) {
   const customer = await loadCustomerOrThrow(customerId);
   return customerDto(customer);
+}
+
+export async function createDemoIdentity(customerId: string, mode: DemoIdentityMode) {
+  if (!env.DEMO_KYC_ENABLED) {
+    throw Errors.notFound('Demo identity creation is disabled', 'DEMO_KYC_DISABLED');
+  }
+
+  const customer = await loadCustomerOrThrow(customerId);
+  if (customer.kycVerified) {
+    throw Errors.conflict('KYC verification has already been completed', 'KYC_ALREADY_VERIFIED');
+  }
+
+  try {
+    if (mode === 'BVN') {
+      const input = createDemoIdentityInput('BVN', customer);
+      const identity = await nibssClient.insertBvn(input);
+      return { message: `Demo ${mode} created`, identity };
+    }
+    const input = createDemoIdentityInput('NIN', customer);
+    const identity = await nibssClient.insertNin(input);
+    return { message: `Demo ${mode} created`, identity };
+  } catch (err) {
+    if (err instanceof NibssError) {
+      if (err.statusCode === 409) throw Errors.conflict(err.message, 'IDENTITY_ALREADY_REGISTERED');
+      if (err.statusCode === 400) throw Errors.badRequest(err.message, 'DEMO_IDENTITY_FAILED');
+      throw Errors.badGateway('Identity service error');
+    }
+    throw err;
+  }
 }
 
 function mapNibssValidationError(err: unknown): never {

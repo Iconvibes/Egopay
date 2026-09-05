@@ -7,22 +7,10 @@ import { api } from '../lib/api';
 
 type KycMode = 'BVN' | 'NIN';
 
-const ADMIN_KEY = (import.meta.env.VITE_ADMIN_KEY as string | undefined) ?? '';
-
-// A fresh synthetic identity is generated on every click so the demo always
-// works (each identity may only be linked to one account).
-const TEST_DOB: Record<KycMode, string> = {
-  BVN: '1992-06-15',
-  NIN: '1990-01-20',
-};
-
-function randomTestNumber(): string {
-  const digits = Array.from({ length: 8 }, () => Math.floor(Math.random() * 10)).join('');
-  return `999${digits}`;
-}
+const DEMO_KYC_ENABLED = import.meta.env.VITE_DEMO_KYC_ENABLED === 'true';
 
 export function Kyc() {
-  const { customer, setCustomer, refresh } = useAuth();
+  const { setCustomer, refresh } = useAuth();
   const { toast } = useToast();
 
   const [mode, setMode] = useState<KycMode>('BVN');
@@ -61,20 +49,16 @@ export function Kyc() {
   async function useTestIdentity() {
     setError(null);
     setBusy(true);
-    const number = randomTestNumber();
-    const dob = TEST_DOB[mode];
     try {
-      // Register a fresh synthetic identity in the NIBSS store (dev utility),
-      // then prefill the form with it.
-      const firstName = customer?.firstName ?? 'Ada';
-      const lastName = customer?.lastName ?? 'Okafor';
       if (mode === 'BVN') {
-        await api.seedBvn({ bvn: number, firstName, lastName, dob, phone: '08011112222' }, ADMIN_KEY);
+        const res = await api.demoBvn();
+        setNumber(res.identity.number);
+        setDob(res.identity.dob);
       } else {
-        await api.seedNin({ nin: number, firstName, lastName, dob }, ADMIN_KEY);
+        const res = await api.demoNin();
+        setNumber(res.identity.number);
+        setDob(res.identity.dob);
       }
-      setNumber(number);
-      setDob(dob);
       toast('success', `Test ${mode} created and loaded.`);
     } catch (err) {
       setError(toastError(err));
@@ -138,7 +122,7 @@ export function Kyc() {
         </button>
       </form>
 
-      {import.meta.env.DEV && (
+      {DEMO_KYC_ENABLED && (
         <div style={{ textAlign: 'center', marginTop: 18 }}>
           <button className="dev-toggle" onClick={useTestIdentity} disabled={busy}>
             <Sparkles size={12} style={{ verticalAlign: -1, marginRight: 4 }} />

@@ -26,6 +26,9 @@ const envSchema = z.object({
   // Optional admin key guarding the dev identity-seeding endpoints.
   DEV_ADMIN_KEY: z.string().optional(),
 
+  // Explicit opt-in for the hosted synthetic KYC demo flow.
+  DEMO_KYC_ENABLED: z.enum(['true', 'false']).default('false').transform((value) => value === 'true'),
+
   // Secret guarding /api/cron/reconcile (serverless balance reconciliation).
   // Vercel Cron sends it automatically as an Authorization: Bearer header.
   // Leave empty to disable the endpoint (e.g. when running the in-process

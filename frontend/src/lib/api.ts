@@ -141,6 +141,8 @@ export const api = {
     request<{ message: string; customer: Customer }>('/onboarding/bvn', { method: 'POST', body }),
   verifyNin: (body: { nin: string; dob: string }) =>
     request<{ message: string; customer: Customer }>('/onboarding/nin', { method: 'POST', body }),
+  demoBvn: () => request<{ message: string; identity: { number: string; dob: string } }>('/onboarding/demo-bvn', { method: 'POST', body: {} }),
+  demoNin: () => request<{ message: string; identity: { number: string; dob: string } }>('/onboarding/demo-nin', { method: 'POST', body: {} }),
 
   // Account
   createAccount: () => request<{ message: string; account: Account }>('/accounts', { method: 'POST', body: {} }),

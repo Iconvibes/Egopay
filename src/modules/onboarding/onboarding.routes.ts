@@ -10,4 +10,6 @@ onboardingRouter.use(requireAuth);
 
 onboardingRouter.post('/bvn', validateBody(verifyBvnSchema), onboardingController.verifyBvn);
 onboardingRouter.post('/nin', validateBody(verifyNinSchema), onboardingController.verifyNin);
+onboardingRouter.post('/demo-bvn', onboardingController.createDemoBvn);
+onboardingRouter.post('/demo-nin', onboardingController.createDemoNin);
 onboardingRouter.get('/status', onboardingController.status);
