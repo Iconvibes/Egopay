@@ -1,0 +1,133 @@
+// Freebuff Digital Bank — database schema
+// PostgreSQL via Prisma ORM.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// KYC identity type used to verify a customer (BVN or NIN).
+enum KycType {
+  BVN
+  NIN
+}
+
+/// Lifecycle of a fund transfer. A transaction is created locally as PENDING
+/// before the external NibssByPhoenix call; it only becomes SUCCESS once the
+/// external API confirms it, and FAILED when the external API rejects it.
+/// If the outcome is unknown (timeout / network error) it stays PENDING so we
+/// never fabricate a result.
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+/// Whether the transfer stays within our bank (same bank code), crosses to
+/// another bank, or is an incoming payment detected on the ledger (sender
+/// details are not exposed by the external API).
+enum TransactionType {
+  INTRABANK
+  INTERBANK
+  INCOMING
+}
+
+/// Money flow relative to the customer's account. DEBIT = the customer sent
+/// money; CREDIT = money arrived (recorded when the ledger balance rises
+/// beyond what this app itself sent out).
+enum TransactionDirection {
+  DEBIT
+  CREDIT
+}
+
+model Customer {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  phone         String?
+
+  // KYC / onboarding state — only set once verification succeeds.
+  kycType       KycType?
+  kycNumber     String?   @unique // masked in every API response; never real data
+  kycFirstName  String?
+  kycLastName   String?
+  kycDob        DateTime?
+  kycVerified   Boolean   @default(false)
+  kycVerifiedAt DateTime?
+
+  account       Account?
+  transactions  Transaction[]
+  notifications Notification[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model Account {
+  id            String   @id @default(cuid())
+  customerId    String   @unique // at most ONE account per customer, enforced by the DB
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  accountNumber String   @unique // 10-digit NUBAN-style number assigned by NibssByPhoenix
+  accountName   String
+  bankCode      String
+  bankName      String
+  currency      String   @default("NGN")
+
+  // Local cache of the external ledger balance. The NibssByPhoenix API is the
+  // source of truth; this is refreshed on balance queries and after transfers.
+  balance       Decimal  @default(0) @db.Decimal(18, 2)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  // External NibssByPhoenix transaction reference (TSQ) — null until the
+  // external API confirms the transfer and returns it.
+  reference     String?           @unique
+  // Owner: the customer whose account was debited. Derived server-side from the
+  // authenticated session — never from client input.
+  customerId    String
+  customer      Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  fromAccount   String
+  toAccount     String
+  recipientName String? // captured from Name Enquiry before the transfer
+  amount        Decimal           @db.Decimal(18, 2)
+  type          TransactionType
+  direction     TransactionDirection @default(DEBIT)
+  status        TransactionStatus @default(PENDING)
+  narration     String?
+  errorMessage  String? // external API rejection reason, kept server-side
+  createdAt     DateTime          @default(now())
+  completedAt   DateTime?
+  updatedAt     DateTime          @updatedAt
+
+  @@index([customerId, createdAt])
+  @@index([status])
+}
+
+/// In-app alert for events the app discovers (e.g. an incoming payment
+/// detected on the ledger). Persisted so alerts survive reloads and can be
+/// surfaced as toasts, a badge, or a notification center.
+model Notification {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  kind       String   @default("INCOMING_CREDIT")
+  title      String
+  message    String
+  amount     Decimal? @db.Decimal(18, 2)
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([customerId, read, createdAt])
+}

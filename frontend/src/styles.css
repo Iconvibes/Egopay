@@ -1,0 +1,1305 @@
+/* ==========================================================================
+   EgoPay — OPay-inspired design system
+   ========================================================================== */
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --primary-deep: #1e3a8a;
+  --primary-soft: #eaf1fe;
+  --primary-grad: linear-gradient(135deg, #3b82f6 0%, #2563eb 45%, #1e40af 100%);
+
+  --bg: #f6f7f9;
+  --body-bg: #e9e9ed;
+  --card: #ffffff;
+  --field-bg: #fafafb;
+  --ink: #16161a;
+  --muted: #8b8b92;
+  --line: #ececef;
+  --toast-bg: #16161a;
+  --toast-fg: #ffffff;
+
+  --green: #00a651;
+  --green-soft: #e8f8f0;
+  --red: #e5484d;
+  --red-soft: #fdecec;
+  --amber: #f5a623;
+  --amber-soft: #fef5e3;
+  --blue: #5b6bff;
+  --blue-soft: #eaf1fe;
+
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 2px 12px rgba(22, 22, 26, 0.06);
+  --shadow-lg: 0 8px 30px rgba(37, 99, 235, 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   Dark mode
+   -------------------------------------------------------------------------- */
+[data-theme='dark'] {
+  --primary: #60a5fa;
+  --primary-dark: #93c5fd;
+  --primary-deep: #1e3a8a;
+  --primary-soft: #16233f;
+  --primary-grad: linear-gradient(135deg, #2563eb 0%, #1d4ed8 45%, #1e3a8a 100%);
+
+  --bg: #0d1117;
+  --body-bg: #05070a;
+  --card: #161b22;
+  --field-bg: #0d1117;
+  --ink: #e6edf3;
+  --muted: #8b949e;
+  --line: #262d38;
+  --toast-bg: #1c2230;
+  --toast-fg: #ffffff;
+
+  --green: #3fb950;
+  --green-soft: #12291e;
+  --red: #f85149;
+  --red-soft: #2d1418;
+  --amber: #d29922;
+  --amber-soft: #2d2410;
+  --blue: #93a8ff;
+  --blue-soft: #1c2440;
+
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .alert--info {
+  color: #93b4ff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--body-bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Phone-like app container */
+.app-shell {
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--bg);
+  position: relative;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  transition: background 0.2s ease;
+}
+
+.screen {
+  flex: 1;
+  padding: 20px 20px 110px;
+  overflow-y: auto;
+}
+
+.screen--no-nav {
+  padding-bottom: 40px;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.06s ease, opacity 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--primary-grad);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.32);
+}
+
+.btn--dark {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--primary);
+  box-shadow: none;
+}
+
+.btn--outline {
+  background: var(--card);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--sm {
+  padding: 10px 16px;
+  font-size: 14px;
+  width: auto;
+}
+
+.btn .spinner {
+  width: 18px;
+  height: 18px;
+  border-width: 2.5px;
+}
+
+/* --------------------------------------------------------------------------
+   Inputs
+   -------------------------------------------------------------------------- */
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-family: inherit;
+  background: var(--field-bg);
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--muted);
+}
+
+.input:focus {
+  border-color: var(--primary);
+  background: var(--card);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.input--error {
+  border-color: var(--red);
+}
+
+.input-error {
+  font-size: 12.5px;
+  color: var(--red);
+  margin-top: 6px;
+}
+
+.input-hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 16px;
+  transition: background 0.2s ease;
+}
+
+.card--soft {
+  background: var(--primary-soft);
+}
+
+/* --------------------------------------------------------------------------
+   In-app "Add to home screen" install card
+   -------------------------------------------------------------------------- */
+.install-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 40px 12px 12px;
+  margin-bottom: 16px;
+  position: relative;
+  animation: pageIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.install-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--primary-grad);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+.install-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.install-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.install-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.35;
+}
+
+.install-btn {
+  flex-shrink: 0;
+}
+
+.install-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+}
+
+.install-close:hover {
+  color: var(--ink);
+}
+
+.card--balance {
+  background: var(--primary-grad);
+  color: #fff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.card--balance::after {
+  content: '';
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  top: -110px;
+  right: -70px;
+}
+
+.card--balance::before {
+  content: '';
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  bottom: -80px;
+  left: 40px;
+}
+
+.balance-label {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.balance-amount {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 6px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.balance-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  opacity: 0.95;
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Header / top bar
+   -------------------------------------------------------------------------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+}
+
+.topbar h1 {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.topbar .sub {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink);
+  flex-shrink: 0;
+  transition: color 0.15s ease, background 0.2s ease;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--primary-grad);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Screen header with back button */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.screen-header h1 {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.screen-header .sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------------------
+   Quick actions grid (OPay-style)
+   -------------------------------------------------------------------------- */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.action {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink);
+  transition: transform 0.06s ease;
+}
+
+.action:active {
+  transform: scale(0.95);
+}
+
+.action .action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action--send .action-icon {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.action--enquiry .action-icon {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.action--status .action-icon {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.action--history .action-icon {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+/* --------------------------------------------------------------------------
+   Route transitions
+   -------------------------------------------------------------------------- */
+.page-enter {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  animation: pageIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   View Transitions (router-level cross-fade)
+   -------------------------------------------------------------------------- */
+/* Default UA styles only cross-fade. These keyframes make the outgoing page
+   fade + slide out to the left while the incoming page slides in from the
+   right — the same cubic-bezier easing family as the splash and page-enter. */
+::view-transition-old(root) {
+  animation: vt-slide-out 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vt-slide-out {
+  to {
+    opacity: 0;
+    transform: translateX(-9%) scale(0.985);
+  }
+}
+
+@keyframes vt-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(9%) scale(0.985);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Pull-to-refresh
+   -------------------------------------------------------------------------- */
+.ptr {
+  position: relative;
+}
+
+.ptr-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ptr-body {
+  will-change: transform;
+  transition: transform 0.25s ease;
+}
+
+.ptr-body--dragging {
+  transition: none;
+}
+
+/* --------------------------------------------------------------------------
+   Notifications (bell badge + center)
+   -------------------------------------------------------------------------- */
+.bell-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.notif-item--unread {
+  background: var(--primary-soft);
+}
+
+.notif-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom navigation (OPay-style)
+   -------------------------------------------------------------------------- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 10px;
+  transition: color 0.15s ease;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-item.active .nav-pill {
+  background: var(--primary);
+  color: #fff;
+}
+
+.nav-pill {
+  width: 40px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.nav-item--send .nav-pill {
+  background: var(--primary-grad);
+  color: #fff;
+  height: 40px;
+  width: 46px;
+  border-radius: 16px;
+  margin-top: -14px;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
+}
+
+.nav-item--send.active {
+  color: var(--primary);
+}
+
+/* --------------------------------------------------------------------------
+   Lists / transactions
+   -------------------------------------------------------------------------- */
+.list {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:active {
+  background: var(--primary-soft);
+}
+
+.list-item-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.list-item-icon--green {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.list-item-icon--red {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.list-item-icon--amber {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.list-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-item-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-item-sub {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-item-amount {
+  font-size: 14.5px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.list-item-amount--minus {
+  color: var(--ink);
+}
+
+.list-item-amount--plus {
+  color: var(--green);
+}
+
+/* --------------------------------------------------------------------------
+   Status chips
+   -------------------------------------------------------------------------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.chip--SUCCESS {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.chip--FAILED {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.chip--PENDING {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+/* --------------------------------------------------------------------------
+   Segmented control
+   -------------------------------------------------------------------------- */
+.segmented {
+  display: flex;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.segmented button {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.segmented button.active {
+  background: var(--primary-grad);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Auth screens (login / register)
+   -------------------------------------------------------------------------- */
+.auth {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 45%, #1e40af 100%);
+}
+
+.auth-hero {
+  padding: 56px 28px 40px;
+  color: #fff;
+  text-align: center;
+}
+
+.auth-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 40px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.auth-hero h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.auth-hero p {
+  font-size: 14px;
+  opacity: 0.92;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.auth-card {
+  background: var(--card);
+  border-radius: 28px 28px 0 0;
+  padding: 30px 24px 40px;
+  flex: 1;
+  margin-top: auto;
+}
+
+.auth-tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.auth-tabs button.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+.auth-link {
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-top: 18px;
+}
+
+.auth-link button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Misc
+   -------------------------------------------------------------------------- */
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 4px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title .link {
+  font-size: 12.5px;
+  color: var(--primary);
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner--dark {
+  border-color: var(--line);
+  border-top-color: var(--primary);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-slow {
+  animation: spin 1.1s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Splash screen
+   -------------------------------------------------------------------------- */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--primary-grad);
+  color: #fff;
+  transition: opacity 0.45s ease;
+}
+
+.splash--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 46px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: splashPop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.splash-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  animation: splashUp 0.5s 0.15s ease both;
+}
+
+.splash-tag {
+  font-size: 13.5px;
+  opacity: 0.92;
+  animation: splashUp 0.5s 0.25s ease both;
+}
+
+.splash .spinner {
+  margin-top: 6px;
+  animation: splashUp 0.5s 0.35s ease both, spin 0.8s linear 0.35s infinite;
+}
+
+@keyframes splashPop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes splashUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Toasts */
+.toast-wrap {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 390px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--toast-bg);
+  color: var(--toast-fg);
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: slideDown 0.25s ease;
+}
+
+.toast--error {
+  background: var(--red);
+}
+
+.toast--success {
+  background: var(--green);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Inline alerts */
+.alert {
+  padding: 13px 15px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.alert--error {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.alert--info {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.alert--success {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+/* Recipient card in transfer flow */
+.recipient-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--primary-soft);
+  border: 1.5px solid rgba(37, 99, 235, 0.25);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.recipient-card .avatar {
+  background: var(--primary-grad);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 14px 0;
+}
+
+/* Summary rows */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+.summary-row .k {
+  color: var(--muted);
+}
+
+.summary-row .v {
+  font-weight: 600;
+}
+
+/* Success screen */
+.success-screen {
+  min-height: 70dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 10px;
+}
+
+.success-check {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Dev helper */
+.dev-toggle {
+  font-size: 12.5px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.footer-note {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 28px;
+}
+
+/* Filters row */
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--muted);
+}
+
+.empty-state svg {
+  margin: 0 auto 14px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.empty-state p {
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash *,
+  .ptr-body,
+  .spinner,
+  .page-enter,
+  .install-card {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* View transitions are skipped entirely at the router level under reduced
+     motion; this also neutralizes any transition another code path starts. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (min-width: 431px) {
+  .app-shell {
+    min-height: calc(100dvh - 32px);
+    margin-top: 16px;
+    border-radius: 28px;
+    overflow: hidden;
+  }
+}

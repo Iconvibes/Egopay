@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output and compiler caches
+dist/
+*.tsbuildinfo
+.vite/
+.cache/
+.eslintcache
+
+# Environment — NEVER commit real credentials
+.env
+.env.local
+.env.*
+.env.*.local
+!.env.example
+
+# Local runtime data (embedded PostgreSQL data dir, logs)
+.local/
+.freebuff/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests
+coverage/

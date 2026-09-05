@@ -1,0 +1,354 @@
+{
+  "info": {
+    "name": "EgoPay Digital Bank — Backend Assignment",
+    "description": "Complete customer journey: register → login → BVN/NIN verification → account creation (₦15,000 pre-funded) → balance → name enquiry → transfer → transaction status → history.\n\nTest identities (synthetic, registered in the NibssByPhoenix identity store — never real personal data):\n- BVN 99900000101 / Ada Okafor / dob 1992-06-15 / 08011112222\n- NIN 99900000202 / Chidi Eze / dob 1990-01-20\n- BVN 99900000303 / Ngozi Adeyemi / dob 1988-09-09 / 08033334444\n\n1. Set `baseUrl` (default http://localhost:4000) and `adminKey` in the collection variables.\n2. Run Seed BVN / Seed NIN first (registers the identities with NIBSS).\n3. Run Register + Login — Login saves the customer token automatically.\n4. Continue through the journey. Transfer to the account created by a second run/user for inter-bank.\n\nIMPORTANT: the verification endpoints compare the name/DOB you registered with against the NIBSS identity record. Register customers using the SAME name as the identity record you verify them with.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "adminKey", "value": "dev-seed-key-1234" },
+    { "key": "token", "value": "" },
+    { "key": "customerId", "value": "" },
+    { "key": "accountNumber", "value": "" },
+    { "key": "transactionId", "value": "" },
+    { "key": "recipientAccount", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0. Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Identity seeding (dev utility, admin key)",
+      "item": [
+        {
+          "name": "Seed BVN record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('seed BVN', function () { pm.response.to.have.status(201); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-admin-key", "value": "{{adminKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bvn\": \"99900000101\",\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Okafor\",\n  \"dob\": \"1992-06-15\",\n  \"phone\": \"08011112222\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/dev/seed-bvn", "host": ["{{baseUrl}}"], "path": ["api", "dev", "seed-bvn"] }
+          }
+        },
+        {
+          "name": "Seed NIN record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('seed NIN', function () { pm.response.to.have.status(201); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-admin-key", "value": "{{adminKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nin\": \"99900000202\",\n  \"firstName\": \"Chidi\",\n  \"lastName\": \"Eze\",\n  \"dob\": \"1990-01-20\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/dev/seed-nin", "host": ["{{baseUrl}}"], "path": ["api", "dev", "seed-nin"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Register customer (Ada Okafor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('register returns 201', function () { pm.response.to.have.status(201); });",
+                  "pm.environment.set('customerId', pm.response.json().customer.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ada.okafor@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Okafor\",\n  \"phone\": \"08011112222\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('login returns 200 and a token', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().token).to.not.be.empty;",
+                  "});",
+                  "pm.environment.set('token', pm.response.json().token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ada.okafor@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "My profile (requires token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. KYC verification",
+      "item": [
+        {
+          "name": "Verify BVN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('bvn verified', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().customer.kyc.verified).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bvn\": \"99900000101\",\n  \"dob\": \"1992-06-15\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/onboarding/bvn", "host": ["{{baseUrl}}"], "path": ["api", "onboarding", "bvn"] }
+          }
+        },
+        {
+          "name": "Verify NIN (for a second customer: register Chidi Eze first)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"nin\": \"99900000202\",\n  \"dob\": \"1990-01-20\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/onboarding/nin", "host": ["{{baseUrl}}"], "path": ["api", "onboarding", "nin"] }
+          }
+        },
+        {
+          "name": "Onboarding status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/onboarding/status", "host": ["{{baseUrl}}"], "path": ["api", "onboarding", "status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Account",
+      "item": [
+        {
+          "name": "Create account (₦15,000 pre-funded)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('account created with 15000', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "  pm.expect(pm.response.json().account.balance).to.eql(15000);",
+                  "});",
+                  "pm.environment.set('accountNumber', pm.response.json().account.accountNumber);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{baseUrl}}/api/accounts", "host": ["{{baseUrl}}"], "path": ["api", "accounts"] }
+          }
+        },
+        {
+          "name": "Get my account",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/accounts/me", "host": ["{{baseUrl}}"], "path": ["api", "accounts", "me"] }
+          }
+        },
+        {
+          "name": "Get my balance (live from NIBSS)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/accounts/me/balance", "host": ["{{baseUrl}}"], "path": ["api", "accounts", "me", "balance"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Transfers",
+      "item": [
+        {
+          "name": "Name enquiry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('name enquiry resolves', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().recipient.accountName).to.not.be.empty;",
+                  "});",
+                  "pm.environment.set('recipientAccount', pm.response.json().recipient.accountNumber);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transfers/name-enquiry/{{recipientAccount}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transfers", "name-enquiry", "{{recipientAccount}}"]
+            }
+          }
+        },
+        {
+          "name": "Transfer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('transfer succeeds', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().transaction.status).to.eql('SUCCESS');",
+                  "});",
+                  "pm.environment.set('transactionId', pm.response.json().transaction.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"{{recipientAccount}}\",\n  \"amount\": 2000,\n  \"narration\": \"lunch money\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/transfers", "host": ["{{baseUrl}}"], "path": ["api", "transfers"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Transactions",
+      "item": [
+        {
+          "name": "Transaction status (TSQ)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "{{transactionId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Transaction detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "{{transactionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Transaction history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
