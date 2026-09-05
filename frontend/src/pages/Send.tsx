@@ -11,6 +11,7 @@ type Step = 'recipient' | 'amount' | 'review' | 'processing' | 'done';
 
 export function Send() {
   const navigate = useNavigate();
+  const { account } = useAuth();
 
   const [step, setStep] = useState<Step>('recipient');
   const [accountNumber, setAccountNumber] = useState('');

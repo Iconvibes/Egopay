@@ -66,16 +66,12 @@ export function Kyc() {
     try {
       // Register a fresh synthetic identity in the NIBSS store (dev utility),
       // then prefill the form with it.
+      const firstName = customer?.firstName ?? 'Ada';
+      const lastName = customer?.lastName ?? 'Okafor';
       if (mode === 'BVN') {
-        await api.seedBvn(
-          { bvn: number, firstName: customer?.firstName ?? 'Ada', lastName: customer?.lastName ?? 'Okafor', dob, phone: '08011112222' },
-          ADMIN_KEY,
-        );
+        await api.seedBvn({ bvn: number, firstName, lastName, dob, phone: '08011112222' }, ADMIN_KEY);
       } else {
-        await api.seedNin(
-          { nin: number, firstName: customer?.firstName ?? 'Chidi', lastName: customer?.lastName ?? 'Eze', dob },
-          ADMIN_KEY,
-        );
+        await api.seedNin({ nin: number, firstName, lastName, dob }, ADMIN_KEY);
       }
       setNumber(number);
       setDob(dob);
@@ -142,12 +138,15 @@ export function Kyc() {
         </button>
       </form>
 
-      {ADMIN_KEY && (
+      {import.meta.env.DEV && (
         <div style={{ textAlign: 'center', marginTop: 18 }}>
           <button className="dev-toggle" onClick={useTestIdentity} disabled={busy}>
             <Sparkles size={12} style={{ verticalAlign: -1, marginRight: 4 }} />
-            Use a demo test {mode}
+            Create a demo {mode}
           </button>
+          <div className="input-hint" style={{ marginTop: 8 }}>
+            No {mode}? Create a synthetic sandbox identity for this demo.
+          </div>
         </div>
       )}
 

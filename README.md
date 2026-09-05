@@ -101,17 +101,25 @@ cd egopay-bank
 npm install
 ```
 
-### 2. Start the database
+### 2. Start the development environment
 
-**Option A — bundled embedded PostgreSQL (no install):**
+The single development command starts the bundled PostgreSQL database when it is not already running, applies pending Prisma migrations, starts the API, and starts the frontend:
+
+```bash
+npm run dev
+```
+
+Open the frontend at <http://localhost:5173>. API requests are proxied to <http://localhost:4000>.
+
+The database runs on `127.0.0.1:5433` with data under `.local/postgres-data` (gitignored). If a compatible database is already running on that port, the development command reuses it.
+
+To start only the database manually, use:
 
 ```bash
 npm run db:start
 ```
 
-Starts a project-local PostgreSQL on `127.0.0.1:5433` (data under `.local/postgres-data`, gitignored) and creates the `egopay_bank` and `egopay_bank_test` databases. Keep it running in its own terminal.
-
-**Option B — your own PostgreSQL:**
+To use your own PostgreSQL instead:
 
 Create a database and point `DATABASE_URL` at it (e.g. via Docker: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16`).
 
@@ -133,8 +141,7 @@ Copy the printed `NIBSS_API_KEY` / `NIBSS_API_SECRET` into `.env`. (Credentials 
 ### 4. Apply migrations and run
 
 ```bash
-npm run prisma:migrate     # applies prisma/migrations to the database
-npm run dev                # starts the API on http://localhost:4000
+npm run dev                # starts the database, migrations, API, and frontend
 ```
 
 Verify: `curl http://localhost:4000/api/health`
@@ -165,6 +172,16 @@ See [.env.example](.env.example) for the full annotated list:
 | `LOG_LEVEL`, rate-limit vars | | Tuning |
 
 Missing or invalid configuration **fails fast at startup** with a clear message.
+
+### Demo KYC flow
+
+BVN and NIN verification uses the NibssByPhoenix sandbox identity store; it does not generate real government IDs. In development, the KYC screen shows **Create a demo BVN/NIN**. That action:
+
+1. Creates a synthetic identity in the sandbox through `/api/dev/seed-bvn` or `/api/dev/seed-nin`.
+2. Prefills the generated 11-digit number and matching date of birth.
+3. Verifies that identity through `/api/onboarding/bvn` or `/api/onboarding/nin`.
+
+The seeded first and last name match the newly registered customer, because the backend checks the name and date of birth before completing KYC. The helper requires the same local key in both files: `DEV_ADMIN_KEY` in `.env` and `VITE_ADMIN_KEY` in `frontend/.env`. Restart `npm run dev` after changing either file. These endpoints are development utilities and should remain disabled in production.
 
 ---
 
