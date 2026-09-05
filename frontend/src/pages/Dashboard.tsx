@@ -140,19 +140,6 @@ export function Dashboard() {
   return (
     <div className="screen" ref={screenRef}>
       <div className="ptr">
-        <div className="ptr-indicator" style={{ transform: `translateY(calc(${refreshing ? PULL_THRESHOLD : pull}px - 100%))` }}>
-          {refreshing ? (
-            <>
-              <span className="spinner spinner--dark" style={{ width: 15, height: 15, borderWidth: 2 }} />
-              Refreshing…
-            </>
-          ) : pull >= PULL_THRESHOLD ? (
-            'Release to refresh'
-          ) : (
-            'Pull to refresh'
-          )}
-        </div>
-
         <div className={`ptr-body ${dragging ? 'ptr-body--dragging' : ''}`} style={{ transform: `translateY(${refreshing ? PULL_THRESHOLD : pull}px)` }}>
           <div className="topbar">
             <div>
