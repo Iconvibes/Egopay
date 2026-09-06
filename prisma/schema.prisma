@@ -1,4 +1,4 @@
-// Freebuff Digital Bank — database schema
+// EgoPay — database schema
 // PostgreSQL via Prisma ORM.
 
 generator client {
